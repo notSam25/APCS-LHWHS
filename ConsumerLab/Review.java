@@ -161,6 +161,7 @@ public class Review {
     }
   }
   public double getTotalValue(String file) {
+    long now = System.nanoTime();
     // put all the text in the file into a string, setup our current word to be ""
     String words = textToString(file).toLowerCase(), curWord = "";
     // setup the value to return from this function
@@ -178,6 +179,7 @@ public class Review {
         }
     }
     // return the total value of the word list
+    System.out.println("time: " + (System.nanoTime() - now));
     return totalWordVal;
   }
 }
