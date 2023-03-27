@@ -57,6 +57,10 @@ public class Calculator {
         int pIndex = equation.indexOf("(");
         int total = 0;
         if (pIndex > -1) { // we have a parenthesis to solve for
+
+            // TODO: this doesn't save equations that aren't included in parenthesis.
+            // ex: 1 + 1 * (3 + 1)
+            // only 3 + 1 will be solved.
             total += calc(equation.substring(pIndex + 1, equation.length() - 1));
         } else { // solve the input equation
             System.out.println(equation);
@@ -70,22 +74,22 @@ public class Calculator {
                 // get our term indexes
                 iPreviousTerm = getPreviousTerm(i - 1, equation.substring(0, i));
                 iNextTerm = getNextTerm(i + 1, equation.substring(i + 1));
-                
+
                 // get the numbers from the indexes
                 int previousTerm = Integer.parseInt(equation.substring(iPreviousTerm, i));
                 int nextTerm = Integer.parseInt(equation.substring(i + 1, iNextTerm + 1));
-                
+
                 // perform EMDAS
                 if (cc == '^') {
-                    
+                    total += previousTerm ^ nextTerm;
                 } else if (cc == '*') {
-
+                    total += previousTerm * nextTerm;
                 } else if (cc == '/') {
-
+                    total += previousTerm / nextTerm;
                 } else if (cc == '+') {
-
+                    total += previousTerm + nextTerm;
                 } else if (cc == '-') {
-
+                    total += previousTerm - nextTerm;
                 }
             }
         }
