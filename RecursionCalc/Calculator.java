@@ -81,7 +81,7 @@ public class Calculator {
 
                 // perform EMDAS
                 if (cc == '^') {
-                    total += previousTerm ^ nextTerm;
+                    total += (int)Math.pow(previousTerm, nextTerm);
                 } else if (cc == '*') {
                     total += previousTerm * nextTerm;
                 } else if (cc == '/') {
