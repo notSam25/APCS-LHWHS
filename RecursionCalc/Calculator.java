@@ -1,20 +1,9 @@
 package RecursionCalc;
 
-/**
- * (14 / 2 * (3 / 3 + 2))
- * 14 / 2 * (3 / 3 + 2)
- * 3 / 3 + 2
- */
 public class Calculator {
     public static void main(String[] args) {
-        // calc("(14 / 2 * (3 / 3 + 2))");
-        String equation = "53+12*22+18";
-        int i = equation.indexOf("*");
-
-        int iPreviousTerm = getPreviousTerm(i - 1, equation.substring(0, i));
-        int iNextTerm = getNextTerm(i + 1, equation.substring(i + 1));
-        System.out.println("Previous Term: " + equation.substring(iPreviousTerm, i));
-        System.out.println("Next Term: " + equation.substring(i + 1, iNextTerm + 1));
+        String equation = "(3*(2+2)+8)";
+        System.out.printf("calculateRecusive(%s) -> %d\n", equation, calculateRecursive(equation));
     }
 
     /**
@@ -22,14 +11,19 @@ public class Calculator {
      * 
      * @param start the index to start the search
      * @param eq    the string equation to parse
-     * @return the start index of the previous term.
+     * @return the start index of the previous term, or if there was no index found
+     *         return's -1.
      */
-    public static int getPreviousTerm(int start, String eq) {
-        System.out.printf("getPreviousTerm(%s)\n", eq);
-        for (int i = start; i != 0; i--) {
+    private static int getPreviousTerm(int start, String eq) {
+        //System.out.printf("getPreviousTerm(%d, %s)\n", start, eq);
+        for (int i = start; i >= 0; i--) {
             char cc = eq.charAt(i);
+            // System.out.printf("i(%d) cc(%s)\n", i, cc);
+
             if (!Character.isDigit(cc)) {
                 return i + 1;
+            } else if (i == 0) {
+                return 0;
             }
         }
         return -1;
@@ -40,59 +34,128 @@ public class Calculator {
      * 
      * @param start the index to start the search
      * @param eq    the string equation to parse
-     * @return the end index of the next term.
+     * @return the end index of the next term, or if there was no index found
+     *         return's -1.
      */
-    public static int getNextTerm(int start, String eq) {
-        System.out.printf("getNextTerm(%s)\n", eq);
+    private static int getNextTerm(int start, String eq) {
+        // System.out.printf("getNextTerm(%d, %s)\n", start, eq);
         for (int i = 0; i < eq.length(); i++) {
             char cc = eq.charAt(i);
+
             if (!Character.isDigit(cc)) {
                 return start + i - 1;
+            } else if (i == eq.length() - 1) {
+                return start + i;
             }
         }
         return -1;
     }
 
-    public static int calc(String equation) {
-        int pIndex = equation.indexOf("(");
-        int total = 0;
-        if (pIndex > -1) { // we have a parenthesis to solve for
+    /**
+     * Solves an 2 variable equation.
+     * 
+     * @param equation  the equation to solve
+     * @param operation the operation to perform
+     * @return the operation of the equations terms
+     */
+    private static String solveByOperation(String equation, char operation) {
+        int solution = 0;
+        int previousTerm = Integer.parseInt(equation.substring(0, equation.indexOf(operation)));
+        int nextTerm = Integer.parseInt(equation.substring(equation.indexOf(operation) + 1, equation.length()));
 
-            // TODO: this doesn't save equations that aren't included in parenthesis.
-            // ex: 1 + 1 * (3 + 1)
-            // only 3 + 1 will be solved.
-            total += calc(equation.substring(pIndex + 1, equation.length() - 1));
-        } else { // solve the input equation
-            System.out.println(equation);
-            int iPreviousTerm = -1, iNextTerm = -1;
-            for (int i = 0; i < equation.length(); i++) {
+        if (operation == '^') {
+            solution += (int) Math.pow(previousTerm, nextTerm);
+        } else if (operation == '*') {
+            solution += previousTerm * nextTerm;
+        } else if (operation == '/') {
+            solution += previousTerm / nextTerm;
+        } else if (operation == '+') {
+            solution += previousTerm + nextTerm;
+        } else if (operation == '-') {
+            solution += previousTerm - nextTerm;
+        }
+        return "" + solution;
+    }
+
+    /**
+     * Handles the given operation on a equation
+     * 
+     * @param equation  the equation
+     * @param operation the operation to use
+     * @return the result of the operation of the terms of the equation
+     */
+    private static String handleOperation(String equation, char operation) {
+        String result = equation;
+
+        while (result.indexOf(operation) > -1) {
+            // get the index for each var
+            int iOperator = result.indexOf(operation);
+            int iPreviousTerm = getPreviousTerm(iOperator - 1, result.substring(0, iOperator));
+            int iNextTerm = getNextTerm(iOperator + 1, result.substring(iOperator + 1, result.length()));
+
+            if (iOperator == -1 || iPreviousTerm == -1 || iNextTerm == -1) {
+                break;
+                //System.out.printf("RUNTIME ERROR: equation(%s), iOperator(%d), iPreviousTerm(%d), iNextTerm(%d)\n", result, iOperator,
+                //        iPreviousTerm, iNextTerm);
+            }
+
+            // the equation to solve
+            String eq = result.substring(iPreviousTerm, iNextTerm + 1);
+
+            // append the result
+            result = result.replace(eq, solveByOperation(eq, operation));
+        }
+        return result;
+    }
+
+    /**
+     * Calculates an equation recusivly.
+     * 
+     * @param equation the equation to solve
+     * @return the solution
+     */
+    public static int calculateRecursive(String equation) {
+        // start by creating our modifiable equation
+        String equationToSolve = equation;
+
+        // if a parenthesis is found, the programm will solve that first
+        if (equation.indexOf("(") > -1) {
+            // get the index's of the open and close of the parenthesis
+            int iOpen = equation.indexOf("(");
+            int iClose = -1;
+
+            for (int i = equation.length() - 1; i >= 0; i--) {
                 char cc = equation.charAt(i);
-
-                if (Character.isDigit(cc))
-                    continue;
-
-                // get our term indexes
-                iPreviousTerm = getPreviousTerm(i - 1, equation.substring(0, i));
-                iNextTerm = getNextTerm(i + 1, equation.substring(i + 1));
-
-                // get the numbers from the indexes
-                int previousTerm = Integer.parseInt(equation.substring(iPreviousTerm, i));
-                int nextTerm = Integer.parseInt(equation.substring(i + 1, iNextTerm + 1));
-
-                // perform EMDAS
-                if (cc == '^') {
-                    total += (int)Math.pow(previousTerm, nextTerm);
-                } else if (cc == '*') {
-                    total += previousTerm * nextTerm;
-                } else if (cc == '/') {
-                    total += previousTerm / nextTerm;
-                } else if (cc == '+') {
-                    total += previousTerm + nextTerm;
-                } else if (cc == '-') {
-                    total += previousTerm - nextTerm;
+                if (cc == ')') {
+                    iClose = i;
+                    break;
                 }
             }
+
+            // the solution for the parenthesis
+            int solution = calculateRecursive(equationToSolve.substring(iOpen + 1, iClose));
+
+            // replace the equation we solved with the solution
+            equationToSolve = equationToSolve.replace(equationToSolve.substring(iOpen, iClose + 1), "" + solution);
         }
-        return total;
+
+        // Perform EMDAS on the equation
+        equationToSolve = handleOperation(equationToSolve, '^');
+        System.out.println("performOperation(^) -> " + equationToSolve);
+
+        equationToSolve = handleOperation(equationToSolve, '*');
+        System.out.println("performOperation(*) -> " + equationToSolve);
+
+        equationToSolve = handleOperation(equationToSolve, '/');
+        System.out.println("performOperation(/) -> " + equationToSolve);
+
+        equationToSolve = handleOperation(equationToSolve, '+');
+        System.out.println("performOperation(+) -> " + equationToSolve);
+
+        equationToSolve = handleOperation(equationToSolve, '-');
+        System.out.println("performOperation(-) -> " + equationToSolve);
+
+        // return the solved equation
+        return Integer.parseInt(equationToSolve);
     }
 };
