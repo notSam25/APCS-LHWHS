@@ -2,10 +2,14 @@ package RecursionCalc;
 
 public class CalculatorV2 {
     public static void main(String[] args) {
-        String equations[] = { "2^3" };
 
-        for (String equation : equations) {
-            System.out.printf("calculate(%s) -> %d\n", equation, calculate(equation));
+        String equations[] = { "2^3", "7^2", "2^1" };
+        int solutions[] = { 8, 49, 2 };
+
+        for (int i = 0; i < equations.length; i++) {
+            int solution = calculate(equations[i]);
+            System.out.printf("calculate(%s) -> {%d, %B}\n",
+                    equations[i], solution, solution == solutions[i]);
         }
     }
 
@@ -32,9 +36,9 @@ public class CalculatorV2 {
     }
 
     public static int calculate(String equation) {
-        
+
         // Print the equation to solve
-        System.out.printf("calculate(%s)\n", equation);
+        //System.out.printf("calculate(%s)\n", equation);
 
         // There are parentheses present in the equation
         if (equation.indexOf("(") > -1) {
@@ -60,7 +64,6 @@ public class CalculatorV2 {
 
         // While there is exponents to solve
         while (equation.indexOf("^") > -1) {
-
             // Define index variables and get numbers from index's
             int iOperator = equation.indexOf("^"),
                     iPrevTerm = getPreviousTermIndex(equation.substring(0, iOperator)),
