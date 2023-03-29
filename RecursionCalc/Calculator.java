@@ -1,7 +1,6 @@
 package RecursionCalc;
 
 public class Calculator {
-
     public static void main(String[] args) {
         String equation = "3+5-2+6-4";
         System.out.printf("calculateRecusive(%s) -> %d\n", equation, calculateRecursive(equation));
@@ -170,11 +169,13 @@ public class Calculator {
                 if (iOperator == -1 || iPreviousTerm == -1 || iNextTerm == -1) {
                     continue;
                 }
-                String solution = handleOperation(equationToSolve.substring(iPreviousTerm, iNextTerm + 1), cc);
-                System.out.printf("performOperation(%s) -> %s\n", cc, solution);
-                equationToSolve = equationToSolve.replace(equationToSolve.substring(iPreviousTerm, iNextTerm + 1),
+                String equat = equationToSolve.substring(iPreviousTerm, iNextTerm + 1);
+                System.out.printf("eqat -> %s\n",equat);
+                String solution = handleOperation(equat, cc);
+                equationToSolve = equationToSolve.replace(equat,
                         solution);
                 i = 0;
+                System.out.printf("performOperation(%s) -> %s\n", cc, equationToSolve);
             }
         }
         // return the solved equation
