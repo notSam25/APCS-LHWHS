@@ -1,8 +1,9 @@
 package RecursionCalc;
 
 public class Calculator {
+
     public static void main(String[] args) {
-        String equation = "(3*(2+2)+8)";
+        String equation = "3+5-2+6-4";
         System.out.printf("calculateRecusive(%s) -> %d\n", equation, calculateRecursive(equation));
     }
 
@@ -15,7 +16,7 @@ public class Calculator {
      *         return's -1.
      */
     private static int getPreviousTerm(int start, String eq) {
-        //System.out.printf("getPreviousTerm(%d, %s)\n", start, eq);
+        // System.out.printf("getPreviousTerm(%d, %s)\n", start, eq);
         for (int i = start; i >= 0; i--) {
             char cc = eq.charAt(i);
             // System.out.printf("i(%d) cc(%s)\n", i, cc);
@@ -94,9 +95,10 @@ public class Calculator {
             int iNextTerm = getNextTerm(iOperator + 1, result.substring(iOperator + 1, result.length()));
 
             if (iOperator == -1 || iPreviousTerm == -1 || iNextTerm == -1) {
+                System.out.printf("RUNTIME ERROR: equation(%s), iOperator(%d), iPreviousTerm(%d), iNextTerm(%d)\n",
+                        result, iOperator,
+                        iPreviousTerm, iNextTerm);
                 break;
-                //System.out.printf("RUNTIME ERROR: equation(%s), iOperator(%d), iPreviousTerm(%d), iNextTerm(%d)\n", result, iOperator,
-                //        iPreviousTerm, iNextTerm);
             }
 
             // the equation to solve
@@ -149,12 +151,32 @@ public class Calculator {
         equationToSolve = handleOperation(equationToSolve, '/');
         System.out.println("performOperation(/) -> " + equationToSolve);
 
-        equationToSolve = handleOperation(equationToSolve, '+');
-        System.out.println("performOperation(+) -> " + equationToSolve);
+        /*
+         * equationToSolve = handleOperation(equationToSolve, '+');
+         * System.out.println("performOperation(+) -> " + equationToSolve);
+         * 
+         * equationToSolve = handleOperation(equationToSolve, '-');
+         * System.out.println("performOperation(-) -> " + equationToSolve);
+         */
 
-        equationToSolve = handleOperation(equationToSolve, '-');
-        System.out.println("performOperation(-) -> " + equationToSolve);
+        for (int i = 0; i < equationToSolve.length(); i++) {
+            char cc = equationToSolve.charAt(i);
+            if (!Character.isDigit(cc)) {
+                int iOperator = i;
+                int iPreviousTerm = getPreviousTerm(iOperator - 1, equationToSolve.substring(0, iOperator));
+                int iNextTerm = getNextTerm(iOperator + 1,
+                        equationToSolve.substring(iOperator + 1, equationToSolve.length()));
 
+                if (iOperator == -1 || iPreviousTerm == -1 || iNextTerm == -1) {
+                    continue;
+                }
+                String solution = handleOperation(equationToSolve.substring(iPreviousTerm, iNextTerm + 1), cc);
+                System.out.printf("performOperation(%s) -> %s\n", cc, solution);
+                equationToSolve = equationToSolve.replace(equationToSolve.substring(iPreviousTerm, iNextTerm + 1),
+                        solution);
+                i = 0;
+            }
+        }
         // return the solved equation
         return Integer.parseInt(equationToSolve);
     }
